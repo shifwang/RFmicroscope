@@ -99,3 +99,13 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# RData
+.RData
+.Rdata
+.RDa
+.Rda
+
+# txt or csv
+.txt
+.csv
