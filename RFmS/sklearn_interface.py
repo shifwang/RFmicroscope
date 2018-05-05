@@ -58,6 +58,7 @@ def all_tree_paths(dtree, root_node_id=0):
     ...
     [1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0]
     """
+    #TODO: use the decision path function in sklearn to optimize the code
     # sanity CHECK
     if type(dtree) != sklearn.tree.DecisionTreeClassifier:
         raise ValueError('dtree type is supposed to be sklearn.tree.tree.DecisionTreeClassifier but got %s'%type(dtree))
