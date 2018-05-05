@@ -112,6 +112,79 @@ class OrdinaryTreeReader(TreeReader):
         self.info_ = self.info_.append(pandas.DataFrame(new_record), ignore_index = True)
         self.number_of_rows_ = self.info_.shape[0]
 
+class ImportanceTreeReader(TreeReader):
+    """docstring for OrdinaryTreeReader."""
+    def __init__(self,**kwargs):
+        super(ImportanceTreeReader, self).__init__(**kwargs)
+
+        assert 'feature_names' in kwargs, \
+        'ImportanceTreeReader __init__ must specific feature_names!'
+        assert 'sample_names' in kwargs, \
+        'ImportanceTreeReader __init__ must specific sample_names!'
+
+        self.colnames_ = []
+
+        self.feature_names_ = kwargs['feature_names']
+        self.number_of_features_ = len(self.feature_names_)
+        self.colnames_ += self.feature_names_
+
+        self.sample_names_ = kwargs['sample_names']
+        self.number_of_samples_ = len(self.sample_names_)
+        self.colnames_ += self.sample_names_
+
+        self.colnames_.append('tree_id')
+        self.colnames_.append('leaf_id')
+
+        self.colnames_.append('pred_label')
+        self.info_ = pandas.DataFrame(columns = self.colnames_)
+
+        self.number_of_rows_ = self.info_.shape[0]
+    def read_from(self, tree, X, tree_id = 0):
+        # tree must be of the type:
+        assert type(tree) == sklearn.tree.tree.DecisionTreeClassifier,\
+            'The type of tree must be sklearn.tree.tree.DecisionTreeClassifier but %s given.'%str(type(tree))
+
+        # X must have the correct shape
+        assert X.shape == (self.number_of_samples_, self.number_of_features_),\
+            'The shape of X is not (%d, %d)'%(self.number_of_features_, self.number_of_samples_)
+
+        # read all paths from tree
+        paths = all_tree_paths(tree)
+
+        # get prediction nodes
+        pred_nodes = tree.tree_.apply(np.array(X, dtype = np.float32))
+
+        # get prediction labels
+        pred_labels = tree.predict(X)
+
+        new_record = {colname:[] for colname in list(self.info_)}
+        # add all paths into info
+        for path in paths:
+
+            new_record['tree_id'].append(tree_id)
+            new_record['leaf_id'].append(path[-1])
+
+            new_record['pred_label'].append(None)
+            for f in self.feature_names_:
+                new_record[f].append(0)
+            for s in self.sample_names_:
+                new_record[s].append(False)
+            for sample_ind in range(self.number_of_samples_):
+                if pred_nodes[sample_ind] == path[-1]:
+                    new_record[self.sample_names_[sample_ind]][-1] = True
+                    new_record['pred_label'][-1] = pred_labels[sample_ind]
+            for i in range(len(path) - 1):
+                node_ind = path[i]
+                next_node_ind = path[i+1]
+                label = int(new_record['pred_label'][-1])
+                prob_prev = tree.tree_.value[node_ind][0, label]/sum(tree.tree_.value[node_ind][0,:])
+                prob_next = tree.tree_.value[next_node_ind][0, label]/sum(tree.tree_.value[next_node_ind][0,:])
+                new_record[self.feature_names_[tree.tree_.feature[node_ind]]][-1] = prob_next - prob_prev
+
+            #print(new_record)
+        self.info_ = self.info_.append(pandas.DataFrame(new_record), ignore_index = True)
+        self.number_of_rows_ = self.info_.shape[0]
+
 
 
 
@@ -160,6 +233,9 @@ class ForestReader(Reader):
         if TreeReaderType == 'Ordinary':
             treeReader = OrdinaryTreeReader(feature_names=self.feature_names_,
             sample_names = self.sample_names_)
+        elif TreeReaderType == 'Importance':
+            treeReader = ImportanceTreeReader(feature_names=self.feature_names_,
+            sample_names = self.sample_names_)
         elif TreeReaderType == 'Signed':
             treeReader = SignedTreeReader()
         else:
@@ -196,5 +272,5 @@ if __name__ == '__main__':
     a.read_from(e0, X_train)
     a.summary()
     b = ForestReader()
-    b.read_from(rf, X_train)
+    b.read_from(rf, X_train,TreeReaderType = 'Importance')
     b.summary()
