@@ -176,7 +176,8 @@ class ImportanceTreeReader(TreeReader):
             for i in range(len(path) - 1):
                 node_ind = path[i]
                 next_node_ind = path[i+1]
-                label = int(new_record['pred_label'][-1])
+                #label = int(new_record['pred_label'][-1])
+                label = 1
                 prob_prev = tree.tree_.value[node_ind][0, label]/sum(tree.tree_.value[node_ind][0,:])
                 prob_next = tree.tree_.value[next_node_ind][0, label]/sum(tree.tree_.value[next_node_ind][0,:])
                 new_record[self.feature_names_[tree.tree_.feature[node_ind]]][-1] = prob_next - prob_prev
@@ -230,6 +231,7 @@ class ForestReader(Reader):
         elif self.number_of_features_ != X.shape[1]:
             raise ValueError('X.shape[1] not equal to number_of_features_')
         # Main body
+        self.TreeReaderType = TreeReaderType
         if TreeReaderType == 'Ordinary':
             treeReader = OrdinaryTreeReader(feature_names=self.feature_names_,
             sample_names = self.sample_names_)
