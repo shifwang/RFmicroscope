@@ -9,7 +9,7 @@ def all_tree_paths_test1():
     ytrain = np.random.choice([0, 1], (n_samples, ))
     Xtrain[:,0] = Xtrain[:,0] + ytrain
     rf = RandomForestClassifier(max_features = n_features,
-                                n_estimators = 1)
+                                n_estimators = 1, bootstrap=False)
     rf.fit(X = Xtrain, y = ytrain)
     tree0 = rf.estimators_[0]
     paths = all_tree_paths(dtree = tree0)

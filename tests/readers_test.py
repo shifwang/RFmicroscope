@@ -7,7 +7,7 @@ def test1_readers():
     X_train = np.array([[1.3, 0, 0], [1.3, 0, 1], [1.3, 0, 2]])
     y_train = np.array([0, 0, 1])
     rf = RandomForestClassifier(
-        n_estimators=1, random_state=1231, max_features = 2)
+        n_estimators=1, random_state=1231, max_features = 2, bootstrap=False)
     rf.fit(X=X_train, y=y_train)
     e0 = rf.estimators_[0]
     a = OrdinaryTreeReader(feature_names = ['f%d'%i for i in range(3)],
@@ -24,7 +24,7 @@ def test2_readers():
     X_train = np.array([[1.3, 0, 0], [1.3, 0, 1], [1.3, 0, 2], [1.3, 0, 3]])
     y_train = np.array([0, 0, 1, 0])
     rf = RandomForestClassifier(
-        n_estimators=1, random_state=1231, max_features = 2)
+        n_estimators=1, random_state=1231, max_features = 2, bootstrap=False)
     rf.fit(X=X_train, y=y_train)
     e0 = rf.estimators_[0]
     a = OrdinaryTreeReader(feature_names = ['f%d'%i for i in range(3)],
