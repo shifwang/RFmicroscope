@@ -180,7 +180,7 @@ class ImportanceTreeReader(TreeReader):
                 label = 1
                 prob_prev = tree.tree_.value[node_ind][0, label]/sum(tree.tree_.value[node_ind][0,:])
                 prob_next = tree.tree_.value[next_node_ind][0, label]/sum(tree.tree_.value[next_node_ind][0,:])
-                new_record[self.feature_names_[tree.tree_.feature[node_ind]]][-1] = prob_next - prob_prev
+                new_record[self.feature_names_[tree.tree_.feature[node_ind]]][-1] += prob_next - prob_prev
 
             #print(new_record)
         self.info_ = self.info_.append(pandas.DataFrame(new_record), ignore_index = True)
