@@ -1,4 +1,4 @@
-from . import readers
+from rfms.readers import *
 import numpy as np
 import pandas as pd
 def individual_signed_feature_importance(forestReader):
@@ -29,3 +29,20 @@ def individual_signed_feature_importance(forestReader):
     for sample in out.index:
         out.loc[sample,:] = out.loc[sample,:] / number_of_trees_
     return out
+if __name__ == '__main__':
+    options = dict()
+    from sklearn.datasets import load_breast_cancer
+    from sklearn.model_selection import train_test_split
+    from sklearn.ensemble import RandomForestClassifier
+    raw_data = load_breast_cancer()
+    X_train, X_test, y_train, y_test = train_test_split(
+        raw_data.data, raw_data.target, train_size=0.9,
+        random_state=2017)
+    rf = RandomForestClassifier(
+        n_estimators=3, random_state=1231)
+    rf.fit(X=X_train, y=y_train)
+    b = ForestReader()
+    b.read_from(rf, X_train,TreeReaderType = 'Importance')
+    b.summary()
+    out = individual_signed_feature_importance(b)
+    print(out.head())
