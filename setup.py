@@ -13,7 +13,7 @@ URL = 'https://github.com/shifwang/RFmicroscope'
 MAINTAINER = 'Yu Wang'
 MAINTAINER_EMAIL = 'wang.yu@berkeley.edu'
 LICENSE = 'new BSD'
-VERSION = '0.1.3'
+VERSION = '0.1'
 
 
 def configuration(parent_package='rfms', top_path=None):

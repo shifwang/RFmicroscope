@@ -15,3 +15,6 @@ def all_tree_paths_test1():
     paths = all_tree_paths(dtree = tree0)
     assert (paths == [[0, 1], [0, 2]]), \
     'paths is supposed to be [[0, 1], [0, 2]] but got %s'%str(paths)
+print('running test of sklearn_interface.')
+all_tree_paths_test1()
+print('passed.')
