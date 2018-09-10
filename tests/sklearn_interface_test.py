@@ -1,5 +1,5 @@
 from sklearn.ensemble import RandomForestClassifier
-from ..RFmS.sklearn_interface import *
+from rfms.sklearn_interface import *
 import numpy as np
 import scipy as sp
 def all_tree_paths_test1():

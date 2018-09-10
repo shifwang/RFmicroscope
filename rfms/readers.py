@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from sklearn_interface import all_tree_paths
+from .sklearn_interface import all_tree_paths
 import sklearn
 import numpy as np
 import pandas
@@ -113,7 +113,7 @@ class OrdinaryTreeReader(TreeReader):
         self.number_of_rows_ = self.info_.shape[0]
 
 class ImportanceTreeReader(TreeReader):
-    """docstring for OrdinaryTreeReader."""
+    """docstring for ImportanceTreeReader."""
     def __init__(self,**kwargs):
         super(ImportanceTreeReader, self).__init__(**kwargs)
 
