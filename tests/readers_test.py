@@ -18,6 +18,7 @@ def test1_readers():
     assert tuple(a.info_.loc[0, a.feature_names_]) == (False, False, True), 'a.info_ should only use feature f3 (should see (False, False, True) but got (%r, %r, %r))'%(a.info_.loc[0, 'f0'], a.info_.loc[0, 'f1'], a.info_.loc[0, 'f2'])
     b = ForestReader()
     b.read_from(rf, X_train,TreeReaderType = 'Importance')
+    print(rf.feature_importances_)
     assert b.all_trees_.info_.shape == (2, 9), 'b.all_trees_.info_ should have shape (2, 9) but got (%d, %d)'%(b.all_trees_.info_.shape[0], b.all_trees_.info_.shape[1])
     assert tuple(b.all_trees_.info_.loc[0, b.feature_names_]) == (0, 0, -1/3), 'b.all_trees_.info_ should only use feature f3 (should see (0, 0, -1/3) but got (%f, %f, %f))'%(b.all_trees_.info_.loc[0, 'f0'], b.all_trees_.info_.loc[0, 'f1'], b.all_trees_.info_.loc[0, 'f2'])
 def test2_readers():
@@ -35,8 +36,9 @@ def test2_readers():
     b = ForestReader()
     b.read_from(rf, X_train,TreeReaderType = 'Importance')
     #b.summary()
+    print(rf.feature_importances_)
     assert b.all_trees_.info_.shape == (3, 10), 'b.all_trees_.info_ should have shape (3, 10) but got (%d, %d)'%(b.all_trees_.info_.shape[0], b.all_trees_.info_.shape[1])
-    assert tuple(b.all_trees_.info_.loc[0, b.feature_names_]) == (0, 0, -1/4), 'b.all_trees_.info_ should only use feature f3 (should see (0, 0, -1/3) but got (%f, %f, %f))'%(b.all_trees_.info_.loc[0, 'f0'], b.all_trees_.info_.loc[0, 'f1'], b.all_trees_.info_.loc[0, 'f2'])
+    assert tuple(b.all_trees_.info_.loc[0, b.feature_names_]) == (0, 0, -1/4), 'b.all_trees_.info_ should only use feature f3 (should see (0, 0, -1/4) but got (%f, %f, %f))'%(b.all_trees_.info_.loc[0, 'f0'], b.all_trees_.info_.loc[0, 'f1'], b.all_trees_.info_.loc[0, 'f2'])
 print('running test of readers...')
 test1_readers()
 test2_readers()

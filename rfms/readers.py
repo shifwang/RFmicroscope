@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from .sklearn_interface import all_tree_paths
+from rfms.sklearn_interface import all_tree_paths
 import sklearn
 import numpy as np
 import pandas
@@ -173,16 +173,16 @@ class ImportanceTreeReader(TreeReader):
                 if pred_nodes[sample_ind] == path[-1]:
                     new_record[self.sample_names_[sample_ind]][-1] = True
                     new_record['pred_label'][-1] = pred_labels[sample_ind]
+            label = 1
             for i in range(len(path) - 1):
                 node_ind = path[i]
                 next_node_ind = path[i+1]
                 #label = int(new_record['pred_label'][-1])
-                label = 1
+                #print(sum(tree.tree_.value[node_ind][0,:]))
                 prob_prev = tree.tree_.value[node_ind][0, label]/sum(tree.tree_.value[node_ind][0,:])
                 prob_next = tree.tree_.value[next_node_ind][0, label]/sum(tree.tree_.value[next_node_ind][0,:])
-                new_record[self.feature_names_[tree.tree_.feature[node_ind]]][-1] += prob_next - prob_prev
-
-            #print(new_record)
+                new_record[self.feature_names_[tree.tree_.feature[node_ind]]][-1] += (prob_next - prob_prev)
+        #print(new_record)
         self.info_ = self.info_.append(pandas.DataFrame(new_record), ignore_index = True)
         self.number_of_rows_ = self.info_.shape[0]
 
