@@ -24,9 +24,10 @@ def individual_signed_feature_importance(forestReader, labels = None):
     # loop through each leaf, 
     #   for any sample it contains, add the feature importance
     for ind in forestReader.all_trees_.info_.index: # TODO: make sure it is each row
+        to_add = forestReader.all_trees_.info_.loc[ind, forestReader.feature_names_]
         for sample in out.index:
             if forestReader.all_trees_.info_.loc[ind,sample]:
-                out.loc[sample,:] += forestReader.all_trees_.info_.loc[ind, forestReader.feature_names_]
+                out.loc[sample,:] += to_add
     number_of_trees_ = len(np.unique(forestReader.all_trees_.info_['tree_id']))
     for sample in out.index:
         out.loc[sample,:] = out.loc[sample,:] / number_of_trees_
