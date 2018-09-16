@@ -23,14 +23,19 @@ def individual_signed_feature_importance(forestReader, labels = None):
     out = out.set_index('sample_names')
     # loop through each leaf, 
     #   for any sample it contains, add the feature importance
-    for ind in forestReader.all_trees_.info_.index: # TODO: make sure it is each row
-        to_add = forestReader.all_trees_.info_.loc[ind, forestReader.feature_names_]
-        for sample in out.index:
-            if forestReader.all_trees_.info_.loc[ind,sample]:
-                out.loc[sample,:] += to_add
+    path_sample = np.array(forestReader.all_trees_.info_[forestReader.sample_names_])
+    path_feature = np.array(forestReader.all_trees_.info_[forestReader.feature_names_])
+#    for ind in forestReader.all_trees_.info_.index: # TODO: make sure it is each row
+#        to_add = forestReader.all_trees_.info_.loc[ind, forestReader.feature_names_]
+#        for sample in out.index:
+#            if forestReader.all_trees_.info_.loc[ind,sample]:
+#                out.loc[sample,:] += to_add
     number_of_trees_ = len(np.unique(forestReader.all_trees_.info_['tree_id']))
-    for sample in out.index:
-        out.loc[sample,:] = out.loc[sample,:] / number_of_trees_
+#    for sample in out.index:
+#        out.loc[sample,:] = out.loc[sample,:] / number_of_trees_
+    tmp_out = path_sample.T.dot(path_feature) / number_of_trees_
+#    print(tmp_out - np.array(out), len(forestReader.sample_names_))
+    out = pd.DataFrame(data=tmp_out, columns=forestReader.feature_names_, index = forestReader.sample_names_)
     if labels is not None:
         if set(labels[:]) != set([0, 1]):
             raise ValueError('only supported 0-1 label right now.')
