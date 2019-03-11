@@ -1,6 +1,60 @@
 from rfms.readers import *
 import numpy as np
 import pandas as pd
+from sklearn.ensemble.forest import _generate_unsampled_indices
+def oob_feature_importance(rf, X_train, y_train, loss = 'gini'):
+    # generate importance forest reader
+    reader = ForestReader()
+    reader.read_from(rf, X_train, TreeReaderType = 'Importance')
+    # generate feature importance template
+    n_features = len(reader.feature_names_)
+    n_samples = len(reader.sample_names_)
+    
+    # loop through each leaf, 
+    #   for any sample it contains, add the feature importance
+    path_sample = np.array(reader.all_trees_.info_[reader.sample_names_], dtype=float)
+    for ind in range(len(rf.estimators_)):
+        estimator = rf.estimators_[ind]
+        unsampled_indices = _generate_unsampled_indices(estimator.random_state, n_samples)
+        sampled_indices = np.array([True] * n_samples)
+        sampled_indices[unsampled_indices] = 0
+        sampled_indices = np.where(sampled_indices)[0]
+        tmp = reader.all_trees_.info_.loc[reader.all_trees_.info_['tree_id'] == ind].index.values
+        path_sample[np.ix_(tmp, sampled_indices)] = path_sample[np.ix_(tmp, sampled_indices)] * 0 # FIXME: the indexing
+    useful_samples = np.sum(path_sample, 0) > 0
+    path_sample[:,useful_samples] = path_sample[:, useful_samples] / np.sum(path_sample[:,useful_samples], 0)
+    
+    path_feature = np.array(reader.all_trees_.info_[reader.feature_names_], dtype=float)
+    oob_individual_importance = path_sample.T.dot(path_feature)[useful_samples,:]
+    tmp = (y_train[np.newaxis, useful_samples] - .5) * 2
+    out = tmp @ oob_individual_importance / np.sum(useful_samples)
+    out = out.flatten()
+    if np.sum(out[out > 0]) + 10 * np.sum(out[out < 0]) < 0:
+        return out
+    else:
+        return out / np.sum(out)
+
+def overall_prevalence(forestReader, features, weighted_by_nodesize = True):
+    ''' Compute the prevlance of a set of features
+    '''
+    if forestReader.TreeReaderType != 'Ordinary':
+        raise AssertionError('TreeReaderType must be Ordinary but got %s'%forestReader.TreeReaderType)
+    # initialize a dataframe
+    if len(features) == 0:
+        raise AssertionError('feature_names cannot be of length 0.')
+    if type(features[0]) is not str:
+        try:
+            features = [forestReader.feature_names_[x] for x in features]
+        except:
+            raise ValueError('tried to convert features to strings but failed.')
+    path_feature = np.array(forestReader.all_trees_.info_[features])
+    if weighted_by_nodesize:
+        path_sample = np.array(forestReader.all_trees_.info_[forestReader.sample_names_])
+        path_weight = np.sum(path_sample,1) / np.sum(path_sample)
+    else:
+        path_weight = np.ones((path_feature.shape[0],)) / path_feature.shape[0]
+    return np.sum(path_weight[np.mean(path_feature, 1) == 1])
+    
 def individual_signed_feature_importance(forestReader, labels = None):
     '''Compute the feature importance for each sample
     Args:
