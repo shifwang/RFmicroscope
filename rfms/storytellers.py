@@ -2,6 +2,12 @@ from rfms.readers import *
 import numpy as np
 import pandas as pd
 from sklearn.ensemble.forest import _generate_unsampled_indices
+def test_feature_importance(rf, X_test, y_test, loss = 'gini'):
+    b = ForestReader()
+    b.read_from(rf, X_test, TreeReaderType = 'Importance')
+    out, feature_importances_ = individual_signed_feature_importance(b, y_test)
+    return feature_importances_
+    
 def oob_feature_importance(rf, X_train, y_train, loss = 'gini'):
     # generate importance forest reader
     reader = ForestReader()
