@@ -75,8 +75,8 @@ class OrdinaryTreeReader(TreeReader):
         self.number_of_rows_ = self.info_.shape[0]
     def read_from(self, tree, X, tree_id = 0):
         # tree must be of the type:
-        assert type(tree) == sklearn.tree.tree.DecisionTreeClassifier,\
-            'The type of tree must be sklearn.tree.tree.DecisionTreeClassifier but %s given.'%str(type(tree))
+        #assert type(tree) == sklearn.tree.tree.DecisionTreeClassifier,\
+        #    'The type of tree must be sklearn.tree.tree.DecisionTreeClassifier but %s given.'%str(type(tree))
 
         # X must have the correct shape
         assert X.shape == (self.number_of_samples_, self.number_of_features_),\
@@ -141,8 +141,8 @@ class ImportanceTreeReader(TreeReader):
         self.number_of_rows_ = self.info_.shape[0]
     def read_from(self, tree, X, tree_id = 0):
         # tree must be of the type:
-        assert type(tree) == sklearn.tree.tree.DecisionTreeClassifier,\
-            'The type of tree must be sklearn.tree.tree.DecisionTreeClassifier but %s given.'%str(type(tree))
+        #assert type(tree) == sklearn.tree.tree.DecisionTreeClassifier,\
+        #    'The type of tree must be sklearn.tree.tree.DecisionTreeClassifier but %s given.'%str(type(tree))
 
         # X must have the correct shape
         assert X.shape == (self.number_of_samples_, self.number_of_features_),\
@@ -218,8 +218,8 @@ class ForestReader(Reader):
             self.sample_names_ = None
     def read_from(self, forest, X, TreeReaderType = 'Ordinary'):
         # sanity CHECK
-        assert type(forest) == sklearn.ensemble.forest.RandomForestClassifier,\
-            'The type of forest must be sklearn.ensemble.forest.RandomForestClassifier but %s given.'%str(type(forest))
+        #assert type(forest) == sklearn.ensemble.forest.RandomForestClassifier,\
+        #    'The type of forest must be sklearn.ensemble.forest.RandomForestClassifier but %s given.'%str(type(forest))
         if self.number_of_samples_ == 0:
             self.number_of_samples_ = X.shape[0]
             self.sample_names_ =   ['s%d'%i for i in range(self.number_of_samples_)]
