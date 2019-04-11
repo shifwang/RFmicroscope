@@ -5,8 +5,8 @@ from sklearn.ensemble.forest import _generate_unsampled_indices
 def test_feature_importance(rf, X_test, y_test, loss = 'gini'):
     b = ForestReader()
     b.read_from(rf, X_test, TreeReaderType = 'Importance')
-    out, feature_importances_ = individual_signed_feature_importance(b, y_test)
-    return feature_importances_
+    out, feature_importances_, SE = individual_signed_feature_importance(b, y_test)
+    return feature_importances_, SE
     
 def oob_feature_importance(rf, X_train, y_train, loss = 'gini'):
     # generate importance forest reader
@@ -69,6 +69,7 @@ def individual_signed_feature_importance(forestReader, labels = None):
     Returns:
         out - dataframe, sample * feature
         feature_importance - numpy 1d array, estimated feature importance
+        importance_SE - numpy 1d array, standard error
     Example:
     >>> import RFmicroscope
     >>> #TODO
@@ -99,11 +100,13 @@ def individual_signed_feature_importance(forestReader, labels = None):
     if labels is not None:
         if set(labels[:]) != set([0, 1]):
             raise ValueError('only supported 0-1 label right now.')
-        feature_importance = 2. * (labels - .5).reshape((1, len(labels))).dot(np.array(out))[0] / len(labels)
-        feature_importance = feature_importance / sum(feature_importance)
+        tmp = np.array(out, dtype=float) * (2 * labels - 1).reshape((len(labels), 1))
+        feature_importance = np.mean(tmp, 0)
+        importance_SE = np.std(tmp, 0) / (tmp.shape[0]) ** .5
+        feature_importance, importance_SE = feature_importance / sum(feature_importance), importance_SE / sum(feature_importance)
     else:
-        feature_importance = None
-    return out, feature_importance
+        feature_importance, importance_SE = None, None
+    return out, feature_importance, importance_SE
 if __name__ == '__main__':
     options = dict()
     from sklearn.datasets import load_breast_cancer
